@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 
     int array[MAX_COUNT_OF_NUMBERS], array_copy[MAX_COUNT_OF_NUMBERS];
     char input_string[MAX_INPUT_STRING_LENGTH];
-    scanf("%[^\n]", &input_string);
+    scanf("%[^\n]s", input_string);
 
     int length_of_array = parse_input_string(input_string, array);
 
