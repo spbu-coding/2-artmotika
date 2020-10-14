@@ -16,19 +16,8 @@ struct interval_t {
 };
 
 int parse_argv(int argc, char* argv[], struct interval_t* interval) {
-    int return_value;
-    if(argc < 3) {
-        return_value = -1; // Number of params < 2
-    }else if(argc > 3) {
-        stderr_printf("Number of params > 2");
-        return -2; // Number of params > 2
-    }else if(strcmp(argv[1], argv[2]) == 0) {
-        stderr_printf("Repeat of params (you must use --from and --to only one time)");
-        return -3;
-    }else{
-        return_value = 0;
-    }
-
+    int index_param_from = 0, index_param_to = 0;
+    int number_of_params = 0;
     int from_flag = 0, to_flag = 0;
     for(int i = 1; i < argc; i++) {
         long long number_in_string;
@@ -36,24 +25,39 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
             number_in_string = strtoll(argv[i], NULL, 10);
             if (strncmp(argv[i-1], "--from=", 7) == 0){
                 interval->from = number_in_string;
-            }else if (strncmp(argv[i], "--to=", 5) == 0){
+            }else if (strncmp(argv[i-1], "--to=", 5) == 0){
                 interval->to = number_in_string;
             }
-        }
+        }else number_of_params ++;
         if(strncmp(argv[i], "--from=", 7) == 0 && !from_flag) {
             number_in_string = strtoll(argv[i] + 7, NULL, 10);
             interval->from = number_in_string;
             from_flag = 1;
+            index_param_from = i;
         }
         if(strncmp(argv[i], "--to=", 5) == 0 && !to_flag) {
             number_in_string = strtoll(argv[i] + 5, NULL, 10);
             interval->to = number_in_string;
             to_flag = 1;
+            index_param_to = i;
         }
         if (!from_flag && !to_flag){
             stderr_printf("Not valid params");
             return -4;
         }
+    }
+
+    int return_value;
+    if(number_of_params < 2) {
+        return_value = -1; // Number of params < 2
+    }else if(number_of_params > 2) {
+        stderr_printf("Number of params > 2");
+        return -2; // Number of params > 2
+    }else if(strcmp(argv[index_param_from], argv[index_param_to]) == 0) {
+        stderr_printf("Repeat of params (you must use --from and --to only one time)");
+        return -3;
+    }else{
+        return_value = 0;
     }
 
     return return_value;
