@@ -239,7 +239,7 @@ int main(int argc, char* argv[]) {
         printf("%d ", array_copy[i]);
     }
 
-    if (parse_return_code == 0 || parse_return_code == -1){
+    if (parse_return_code == 0){
         return compare_arrays(array_copy, array_copy2, length_of_copy_array);
     }else return parse_return_code;
 }
