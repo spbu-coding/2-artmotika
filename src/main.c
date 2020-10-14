@@ -32,6 +32,14 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
     int from_flag = 0, to_flag = 0;
     for(int i = 1; i < argc; i++) {
         long long number_in_string;
+        if (strncmp(argv[i], "--", 2) != 0){
+            number_in_string = strtoll(argv[i], NULL, 10);
+            if (strncmp(argv[i-1], "--from=", 7) == 0){
+                interval->from = number_in_string;
+            }else if (strncmp(argv[i], "--to=", 5) == 0){
+                interval->to = number_in_string;
+            }
+        }
         if(strncmp(argv[i], "--from=", 7) == 0 && !from_flag) {
             number_in_string = strtoll(argv[i] + 7, NULL, 10);
             interval->from = number_in_string;
@@ -239,7 +247,7 @@ int main(int argc, char* argv[]) {
         printf("%d ", array_copy[i]);
     }
 
-    if (parse_return_code == 0){
+    if (parse_return_code == 0/* || parse_return_code == -1*/){
         return compare_arrays(array_copy, array_copy2, length_of_copy_array);
     }else return parse_return_code;
 }
