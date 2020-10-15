@@ -19,65 +19,49 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
     int index_param_from = 0, index_param_to = 0;
     int number_of_params = 0;
     int from_flag = 0, to_flag = 0;
+    int is_repeat = 0, last_index = 0;
     for(int i = 1; i < argc; i++) {
-        long long number_in_string;
+        int number_in_string;
         if (strncmp(argv[i], "--", 2) != 0){
             number_in_string = strtoll(argv[i], NULL, 10);
-            if (strncmp(argv[i-1], "--from=", 7) == 0){
+            if (strncmp(argv[last_index], "--from=", 7) == 0){
                 interval->from = number_in_string;
-            }else if (strncmp(argv[i-1], "--to=", 5) == 0){
+            }else if (strncmp(argv[last_index], "--to=", 5) == 0){
                 interval->to = number_in_string;
             }
         }else number_of_params ++;
-        if(strncmp(argv[i], "--from=", 7) == 0 && !from_flag) {
+        if(strncmp(argv[i], "--from=", 7) == 0) {
             number_in_string = strtoll(argv[i] + 7, NULL, 10);
             interval->from = number_in_string;
             from_flag = 1;
+            if (index_param_from != 0) is_repeat = 1;
             index_param_from = i;
+            last_index = index_param_from;
         }
-        if(strncmp(argv[i], "--to=", 5) == 0 && !to_flag) {
+        if(strncmp(argv[i], "--to=", 5) == 0) {
             number_in_string = strtoll(argv[i] + 5, NULL, 10);
             interval->to = number_in_string;
             to_flag = 1;
+            if (index_param_to != 0) is_repeat = 1;
             index_param_to = i;
+            last_index = index_param_to;
         }
-        if (!from_flag && !to_flag){
+        if (!from_flag && !to_flag || interval->from > interval->to){
             stderr_printf("Not valid params");
             return -4;
         }
     }
 
-    int return_value;
     if(number_of_params < 2) {
-        return_value = -1; // Number of params < 2
+        stderr_printf("Number of params < 2");
+        return -1; // Number of params < 2
     }else if(number_of_params > 2) {
         stderr_printf("Number of params > 2");
         return -2; // Number of params > 2
-    }else if(strcmp(argv[index_param_from], argv[index_param_to]) == 0) {
+    }else if(is_repeat) {
         stderr_printf("Repeat of params (you must use --from and --to only one time)");
         return -3;
-    }else{
-        return_value = 0;
-    }
-
-    return return_value;
-}
-
-int make_integer(char* number_string, int length_number_string){
-    int dozens = 1;
-    int number = 0;
-    if (number_string[0] == '-'){
-        for (int i = length_number_string - 1; i > 0; i--) {
-            number -= ((int)number_string[i] - 48) * dozens;
-            dozens *= 10;
-        }
-    }else{
-        for (int i = length_number_string - 1; i >= 0; i--){
-            number += ((int)number_string[i] - 48) * dozens;
-            dozens *= 10;
-        }
-    }
-    return number;
+    }else return 0;
 }
 
 int determine_location(char input_string){
@@ -106,6 +90,23 @@ int determine_location(char input_string){
             break;
         default: return 0;
     }
+}
+
+int make_integer(char* number_string, int length_number_string){
+    int dozens = 1;
+    int number = 0;
+    if (number_string[0] == '-'){
+        for (int i = length_number_string - 1; i > 0; i--) {
+            number -= ((int)number_string[i] - 48) * dozens;
+            dozens *= 10;
+        }
+    }else{
+        for (int i = length_number_string - 1; i >= 0; i--){
+            number += ((int)number_string[i] - 48) * dozens;
+            dozens *= 10;
+        }
+    }
+    return number;
 }
 
 int count_length(char* input_string){
@@ -208,6 +209,8 @@ int main(int argc, char* argv[]) {
     struct interval_t interval = {SMALLEST_NUMBER, BIGGEST_NUMBER};
 
     int parse_return_code = parse_argv(argc, argv, &interval);
+    if(parse_return_code != 0 && parse_return_code != -1)
+        return parse_return_code;
 
     int array[MAX_COUNT_OF_NUMBERS], array_copy[MAX_COUNT_OF_NUMBERS];
     char input_string[MAX_INPUT_STRING_LENGTH];
@@ -251,7 +254,5 @@ int main(int argc, char* argv[]) {
         printf("%d ", array_copy[i]);
     }
 
-    if (parse_return_code == 0/* || parse_return_code == -1*/){
-        return compare_arrays(array_copy, array_copy2, length_of_copy_array);
-    }else return parse_return_code;
+    return compare_arrays(array_copy, array_copy2, length_of_copy_array);
 }
