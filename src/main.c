@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sort.h"
+//#include "sort.h"
 
 #define MAX_INPUT_STRING_LENGTH 12000 //одно число может быть длины порядка 11 символов + пробелы
 #define MAX_INPUT_CHAR_NUMBER 11
@@ -9,6 +9,8 @@
 #define SMALLEST_NUMBER -2147483648
 #define BIGGEST_NUMBER 2147483647
 #define stderr_printf(...) fprintf(stderr, __VA_ARGS__)
+
+extern void sort_array(int copy_array[], int length_of_copy_array);
 
 struct interval_t {
     long long from;
