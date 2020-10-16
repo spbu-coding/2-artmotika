@@ -258,3 +258,4 @@ int main(int argc, char* argv[]) {
 
     return compare_arrays(array_copy, array_copy2, length_of_copy_array);
 }
+
