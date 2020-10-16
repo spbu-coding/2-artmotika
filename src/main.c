@@ -54,11 +54,7 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
         }
     }
 
-<<<<<<< HEAD
     if(number_of_params < 1) {
-=======
-    if(number_of_params < 2) {
->>>>>>> 065a8fbbbbf91b3ddc7648846075abb168c086f6
         stderr_printf("Number of params < 2");
         return -1; // Number of params < 2
     }else if(number_of_params > 2) {
@@ -215,11 +211,7 @@ int main(int argc, char* argv[]) {
     struct interval_t interval = {SMALLEST_NUMBER, BIGGEST_NUMBER};
 
     int parse_return_code = parse_argv(argc, argv, &interval);
-<<<<<<< HEAD
     if(parse_return_code != 0)
-=======
-    if(parse_return_code != 0 && parse_return_code != -1)
->>>>>>> 065a8fbbbbf91b3ddc7648846075abb168c086f6
         return parse_return_code;
 
     int array[MAX_COUNT_OF_NUMBERS], array_copy[MAX_COUNT_OF_NUMBERS];
