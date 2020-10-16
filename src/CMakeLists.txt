@@ -7,6 +7,6 @@ add_executable(main ${C_SOURCES} ${ASM_SOURCES})
 if(MSVC)
   target_compile_options(main PRIVATE /W4 /WX)
 else()
-  target_compile_options(main PRIVATE -Wall -Wextra -pedantic -Werror -Wno-error=language-extension-token)
+  target_compile_options(main PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 

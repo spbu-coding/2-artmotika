@@ -10,7 +10,11 @@
 #define BIGGEST_NUMBER 2147483647
 #define stderr_printf(...) fprintf(stderr, __VA_ARGS__)
 
-extern void sort_array(int copy_array[], int length_of_copy_array) asm ("_sort_array");
+#ifndef __APPLE__
+# define sort_array _sort_array
+#endif
+
+extern void sort_array(int copy_array[], int length_of_copy_array);
 
 struct interval_t {
     long long from;
