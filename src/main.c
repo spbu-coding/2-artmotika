@@ -48,7 +48,7 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
             index_param_to = i;
             last_index = index_param_to;
         }
-        if (!from_flag && !to_flag || interval->from > interval->to){
+        if ((!from_flag && !to_flag) || (interval->from > interval->to)){
             stderr_printf("Not valid params");
             return -4;
         }
