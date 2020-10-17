@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "sort.h"
 
 #define MAX_INPUT_STRING_LENGTH 12000 //одно число может быть длины порядка 11 символов + пробелы
 #define MAX_INPUT_CHAR_NUMBER 11
@@ -27,7 +26,7 @@ int parse_argv(int argc, char* argv[], struct interval_t* interval) {
     int from_flag = 0, to_flag = 0;
     int is_repeat = 0, last_index = 0;
     for(int i = 1; i < argc; i++) {
-        int number_in_string;
+        long long number_in_string;
         if (strncmp(argv[i], "--", 2) != 0){
             number_in_string = strtoll(argv[i], NULL, 10);
             if (strncmp(argv[last_index], "--from=", 7) == 0){
@@ -231,21 +230,23 @@ int main(int argc, char* argv[]) {
     int array_copy2[length_of_copy_array];
     copy_array(array_copy, array_copy2, length_of_copy_array);
 
-    printf("Stdout: ");
+    //printf("Stdout: ");
     if (Stdout[0] == SMALLEST_NUMBER) {
         printf("- ");
     }else{
         for (int i = 0; i < index_Stdout; ++i) {
-            printf("%d ", Stdout[i]);
+            //printf("%d ", Stdout[i]);
+            fprintf(stdout, "%d ", Stdout[i]);
         }
     }
 
-    printf("Stderr: ");
+    //printf("Stderr: ");
     if (Stderr[0] == SMALLEST_NUMBER){
         printf("- ");
     }else{
         for (int i = 0; i < index_Stderr; ++i) {
-            printf("%d ", Stderr[i]);
+            //printf("%d ", Stderr[i]);
+            fprintf(stderr, "%d ", Stderr[i]);
         }
     }
 
