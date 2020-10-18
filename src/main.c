@@ -1,208 +1,119 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-#define MAX_INPUT_STRING_LENGTH 12000 //одно число может быть длины порядка 11 символов + пробелы
-#define MAX_INPUT_CHAR_NUMBER 11
-#define MAX_COUNT_OF_NUMBERS 100
-#define SMALLEST_NUMBER -2147483648
-#define BIGGEST_NUMBER 2147483647
-#define stderr_printf(...) fprintf(stderr, __VA_ARGS__)
+#include <stdlib.h>
 
 #ifndef __APPLE__
 # define sort_array _sort_array
 #endif
 
-extern void sort_array(int copy_array[], int length_of_copy_array);
+#define MAX_COUNT_OF_NUMBERS 100
+
+extern void sort_array(long long reduced_numbers_sorted[], int count_of_reduced_elements);
 
 struct interval_t {
     long long from;
     long long to;
 };
 
-int parse_argv(int argc, char* argv[], struct interval_t* interval) {
-    int index_param_from = 0, index_param_to = 0;
-    int number_of_params = 0;
-    int from_flag = 0, to_flag = 0;
-    int is_repeat = 0, last_index = 0;
-    for(int i = 1; i < argc; i++) {
-        long long number_in_string;
-        if (strncmp(argv[i], "--", 2) != 0){
-            number_in_string = strtoll(argv[i], NULL, 10);
-            if (strncmp(argv[last_index], "--from=", 7) == 0){
-                interval->from = number_in_string;
-            }else if (strncmp(argv[last_index], "--to=", 5) == 0){
-                interval->to = number_in_string;
-            }
-        }else number_of_params ++;
-        if(strncmp(argv[i], "--from=", 7) == 0) {
-            number_in_string = strtoll(argv[i] + 7, NULL, 10);
-            interval->from = number_in_string;
-            from_flag = 1;
-            if (index_param_from != 0) is_repeat = 1;
-            index_param_from = i;
-            last_index = index_param_from;
+int check_arguments(int argc, char* argv[]) {
+    if (argc < 2) {
+        return -1;
+    }
+    if (argc > 3) {
+        return -2;
+    }
+    if (argc  == 3) {
+        if (!(strncmp(argv[1], "--to=", 5) == 0 || strncmp(argv[1], "--from=", 7) == 0) &&
+        !(strncmp(argv[2], "--to=", 5) == 0 || strncmp(argv[2], "--from=", 7) == 0)){
+            return -4;
         }
-        if(strncmp(argv[i], "--to=", 5) == 0) {
-            number_in_string = strtoll(argv[i] + 5, NULL, 10);
-            interval->to = number_in_string;
-            to_flag = 1;
-            if (index_param_to != 0) is_repeat = 1;
-            index_param_to = i;
-            last_index = index_param_to;
+        if ((strncmp(argv[1], argv[2], 5) == 0) || (strncmp(argv[1], argv[2], 7) == 0)){
+            return -3;
         }
-        if ((!from_flag && !to_flag) || (interval->from > interval->to)){
-            stderr_printf("Not valid params");
+    }
+    if (argc == 2) {
+        if (!(strncmp(argv[1], "--to=", 5) == 0 || strncmp(argv[1], "--from=", 7) == 0)) {
             return -4;
         }
     }
-
-    if(number_of_params < 1) {
-        stderr_printf("Number of params < 2");
-        return -1; // Number of params < 2
-    }else if(number_of_params > 2) {
-        stderr_printf("Number of params > 2");
-        return -2; // Number of params > 2
-    }else if(is_repeat) {
-        stderr_printf("Repeat of params (you must use --from and --to only one time)");
-        return -3;
-    }else return 0;
+    return 0;
 }
 
-int determine_location(char input_string){
-    switch (input_string) {
-        case '1':return 1;
-            break;
-        case '2': return 1;
-            break;
-        case '3': return 1;
-            break;
-        case '4': return 1;
-            break;
-        case '5': return 1;
-            break;
-        case '6': return 1;
-            break;
-        case '7': return 1;
-            break;
-        case '8': return 1;
-            break;
-        case '9': return 1;
-            break;
-        case '0': return 1;
-            break;
-        case '-': return 1;
-            break;
-        default: return 0;
-    }
-}
-
-int make_integer(char* number_string, int length_number_string){
-    int dozens = 1;
-    int number = 0;
-    if (number_string[0] == '-'){
-        for (int i = length_number_string - 1; i > 0; i--) {
-            number -= ((int)number_string[i] - 48) * dozens;
-            dozens *= 10;
-        }
-    }else{
-        for (int i = length_number_string - 1; i >= 0; i--){
-            number += ((int)number_string[i] - 48) * dozens;
-            dozens *= 10;
-        }
-    }
-    return number;
-}
-
-int count_length(char* input_string){
-    int length_of_string = 0, i = 0;
-    while (determine_location(input_string[i])){
-        length_of_string ++;
-        i ++;
-    }
-    return length_of_string;
-}
-
-void delete_string(char* number_string, int length_number_string){
-    for (int i = 0; i < length_number_string; ++i) {
-        number_string[i] = ' ';
-    }
-}
-
-int parse_input_string(char* input_string, int array[]){
-    int length_number_string;
-    char number_string[MAX_INPUT_CHAR_NUMBER];
-    int index_array = 0;
-    int c = 0;
-    for (int i = 0; i < MAX_INPUT_STRING_LENGTH; ++i) {
-        if (determine_location(input_string[i])) {
-            number_string[c] = input_string[i];
-            c ++;
-        } else {
-            length_number_string = count_length(number_string);
-            if (length_number_string > 0) {
-                array[index_array] = make_integer(number_string, length_number_string);
-                delete_string(number_string, length_number_string);
-                index_array ++;
-                c = 0;
-            }else break;
-        }
-    }
-    int length_of_array = index_array;
-    return length_of_array;
-}
-
-int copy_array_limitations(int array[], int array_copy[], int length_of_array, struct interval_t interval, int Stdout[], int Stderr[],
-        int* index_Stdout, int* index_Stderr){
-    int index_array = 0;
-    Stdout[0] = SMALLEST_NUMBER;
-    Stderr[0] = SMALLEST_NUMBER;
-    for (int i = 0; i < length_of_array; ++i) {
-        if (interval.from >= SMALLEST_NUMBER && interval.to <= BIGGEST_NUMBER){
-            if (array[i] > interval.from && array[i] < interval.to){
-                array_copy[index_array] = array[i];
-                index_array ++;
-            }else{
-                if (array[i] <= interval.from) {
-                    Stdout[*index_Stdout] = array[i];
-                    *index_Stdout += 1;
-                }else if (array[i] >= interval.to){
-                    Stderr[*index_Stderr] = array[i];
-                    *index_Stderr += 1;
+void scan_arguments(int argc, char* argv[], struct interval_t* interval) {
+    long long from = 0, to = 0;
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "--to=", 5) == 0 || strncmp(argv[i], "--from=", 7) == 0) {
+            if (strncmp(argv[i], "--from=", 5) == 0) {
+                if (strtoll(argv[i] + 7, NULL, 10)) {
+                    from = strtoll(argv[i] + 7, NULL, 10);
                 }
             }
-        }else if (interval.from >= SMALLEST_NUMBER && interval.to == BIGGEST_NUMBER){
-            if (array[i] > interval.from){
-                array_copy[index_array] = array[i];
-                index_array ++;
-            }else{
-                Stdout[*index_Stdout] = array[i];
-                *index_Stdout += 1;
+            if (strncmp(argv[i], "--to=", 5) == 0) {
+                if (strtoll(argv[i] + 5, NULL, 10)) {
+                    to = strtoll(argv[i] + 5, NULL, 10);
+                }
             }
-        }else if (interval.from == SMALLEST_NUMBER && interval.to <= BIGGEST_NUMBER){
-            if (array[i] < interval.to){
-                array_copy[index_array] = array[i];
-                index_array ++;
-            }else{
-                Stderr[*index_Stderr] = array[i];
-                *index_Stderr += 1;
-            }
+
         }
     }
-    return index_array;
+    interval->from = from;
+    interval->to = to;
 }
 
-void copy_array(int array_copy[], int array_copy2[], int length_of_copy_array){
-    for (int i = 0; i < length_of_copy_array; ++i) {
-        array_copy2[i] = array_copy[i];
+void read_array(long long* array, int* count_of_elements) {
+    char c;
+    int i = 0;
+    scanf("%lli%c", &array[i], &c);
+    while (c != '\n') {
+        i++;
+        scanf("%lli%c", &array[i], &c);
+    }
+    *count_of_elements = i + 1;
+}
+
+void distribute_numbers(long long* array_of_numbers, long long* Stdout, long long* reduced_numbers,
+                        int count_of_elements, long long* Stderr, struct interval_t interval, int* count_of_Stderr,
+                        int* count_of_Stdout, int* reduced_count) {
+    int count_Stdout = 0;
+    int count_Stderr = 0;
+    int count_reduced = 0;
+    for (int i = 0; i < count_of_elements; i++) {
+        if (array_of_numbers[i] <= interval.from) {
+            Stdout[count_Stdout] = array_of_numbers[i];
+            count_Stdout++;
+        }
+        if (array_of_numbers[i] >= interval.to && interval.to != 0) {
+            Stderr[count_Stderr] = array_of_numbers[i];
+            count_Stderr++;
+        }
+        if (array_of_numbers[i] > interval.from && (array_of_numbers[i] < interval.to || interval.to == 0)) {
+            reduced_numbers[count_reduced] = array_of_numbers[i];
+            count_reduced++;
+        }
+    }
+    *count_of_Stdout = count_Stdout;
+    *count_of_Stderr = count_Stderr;
+    *reduced_count = count_reduced;
+}
+
+void copy_array(long long* copy_from, long long* copy_to, int count_of_elements) {
+    for (int i = 0; i < count_of_elements; i++) {
+        copy_to[i] = copy_from[i];
     }
 }
 
+void numbers_output(long long* Stdout, int count_of_Stdout, long long* Stderr, int count_of_Stderr) {
+    for (int i = 0; i < count_of_Stdout; i++) {
+        fprintf(stdout, "%lli ", Stdout[i]);
+    }
+    for (int i = 0; i < count_of_Stderr; i++) {
+        fprintf(stderr, "%lli ", Stderr[i]);
+    }
+}
 
-
-int compare_arrays(const int array1[], const int array2[], int length_of_copy_array) {
+int compare_arrays(long long* array1, long long* array2, int count_of_reduced_elements) {
     int difference_count = 0;
-    for(int i = 0; i < length_of_copy_array; i++) {
+    for(int i = 0; i < count_of_reduced_elements; i++) {
         if(array1[i] != array2[i])
             difference_count++;
     }
@@ -210,58 +121,28 @@ int compare_arrays(const int array1[], const int array2[], int length_of_copy_ar
 }
 
 int main(int argc, char* argv[]) {
+    struct interval_t interval = {0, 0};
 
-    struct interval_t interval = {SMALLEST_NUMBER, BIGGEST_NUMBER};
+    long long array_of_numbers[MAX_COUNT_OF_NUMBERS];
+    long long Stdout[MAX_COUNT_OF_NUMBERS];
+    long long Stderr[MAX_COUNT_OF_NUMBERS];
+    long long reduced_numbers[MAX_COUNT_OF_NUMBERS];
+    long long reduced_numbers_sorted[MAX_COUNT_OF_NUMBERS];
 
-    int parse_return_code = parse_argv(argc, argv, &interval);
-    if(parse_return_code != 0)
-        return parse_return_code;
+    int count_of_elements = 0, count_of_Stdout = 0, count_of_Stderr = 0, count_of_reduced_elements = 0;
 
-    int array[MAX_COUNT_OF_NUMBERS], array_copy[MAX_COUNT_OF_NUMBERS];
-    char input_string[MAX_INPUT_STRING_LENGTH];
-    scanf("%[^\n]s", input_string);
-
-    int length_of_array = parse_input_string(input_string, array);
-
-    int Stdout[MAX_COUNT_OF_NUMBERS], Stderr[MAX_COUNT_OF_NUMBERS];
-    int index_Stdout = 0, index_Stderr = 0;
-    int length_of_copy_array = copy_array_limitations(array, array_copy, length_of_array, interval, Stdout, Stderr, &index_Stdout,
-                                          &index_Stderr);
-    int array_copy2[length_of_copy_array];
-    copy_array(array_copy, array_copy2, length_of_copy_array);
-
-    //printf("Stdout: ");
-    if (Stdout[0] == SMALLEST_NUMBER) {
-        //printf("- ");
-    }else{
-        for (int i = 0; i < index_Stdout; ++i) {
-            //printf("%d ", Stdout[i]);
-            fprintf(stdout, "%d ", Stdout[i]);
-        }
+    int check_arguments_return_code = check_arguments(argc, argv);
+    if (check_arguments_return_code) {
+        return check_arguments_return_code;
     }
+    scan_arguments(argc, argv, &interval);
+    read_array(array_of_numbers, &count_of_elements);
+    distribute_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr,
+                       interval, &count_of_Stderr, &count_of_Stdout, &count_of_reduced_elements);
+    copy_array(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
+    sort_array(reduced_numbers_sorted, count_of_reduced_elements);
 
-    //printf("Stderr: ");
-    if (Stderr[0] == SMALLEST_NUMBER){
-        //printf("- ");
-    }else{
-        for (int i = 0; i < index_Stderr; ++i) {
-            //printf("%d ", Stderr[i]);
-            fprintf(stderr, "%d ", Stderr[i]);
-        }
-    }
-/*
-    printf("Reduced: ");
-    for (int i = 0; i < length_of_copy_array; ++i) {
-        printf("%d ", array_copy[i]);
-    }
-*/
-    sort_array(array_copy, length_of_copy_array);
-/*
-    printf("Sorted: ");
-    for (int i = 0; i < length_of_copy_array; ++i) {
-        printf("%d ", array_copy[i]);
-    }
-*/
-    return compare_arrays(array_copy, array_copy2, length_of_copy_array);
+    int count_of_changed_elements = compare_arrays(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
+    numbers_output(Stdout, count_of_Stdout, Stderr, count_of_Stderr);
+    return count_of_changed_elements;
 }
-

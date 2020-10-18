@@ -7,25 +7,25 @@ LFB0:
 	movq	%rdi, %r8
 	testl	%edx, %edx
 	jle	L1
-	leaq	4(%rdi), %r9
+	leaq	8(%rdi), %r9
 	.p2align 4,,10
 	.p2align 3
 L3:
 	subl	$1, %edx
 	movq	%r8, %rax
-	leaq	(%r9,%rdx,4), %rsi
+	leaq	(%r9,%rdx,8), %rsi
 	movq	%rdx, %rdi
 	.p2align 4,,10
 	.p2align 3
 L5:
-	movl	(%rax), %edx
-	movl	4(%rax), %ecx
-	cmpl	%ecx, %edx
+	movq	(%rax), %rdx
+	movq	8(%rax), %rcx
+	cmpq	%rcx, %rdx
 	jle	L4
-	movl	%ecx, (%rax)
-	movl	%edx, 4(%rax)
+	movq	%rcx, (%rax)
+	movq	%rdx, 8(%rax)
 L4:
-	addq	$4, %rax
+	addq	$8, %rax
 	cmpq	%rax, %rsi
 	jne	L5
 	testl	%edi, %edi
