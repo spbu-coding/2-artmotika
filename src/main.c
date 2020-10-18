@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 
     //printf("Stdout: ");
     if (Stdout[0] == SMALLEST_NUMBER) {
-        printf("- ");
+        //printf("- ");
     }else{
         for (int i = 0; i < index_Stdout; ++i) {
             //printf("%d ", Stdout[i]);
@@ -242,25 +242,26 @@ int main(int argc, char* argv[]) {
 
     //printf("Stderr: ");
     if (Stderr[0] == SMALLEST_NUMBER){
-        printf("- ");
+        //printf("- ");
     }else{
         for (int i = 0; i < index_Stderr; ++i) {
             //printf("%d ", Stderr[i]);
             fprintf(stderr, "%d ", Stderr[i]);
         }
     }
-
+/*
     printf("Reduced: ");
     for (int i = 0; i < length_of_copy_array; ++i) {
         printf("%d ", array_copy[i]);
     }
-
+*/
     sort_array(array_copy, length_of_copy_array);
+/*
     printf("Sorted: ");
     for (int i = 0; i < length_of_copy_array; ++i) {
         printf("%d ", array_copy[i]);
     }
-
+*/
     return compare_arrays(array_copy, array_copy2, length_of_copy_array);
 }
 
