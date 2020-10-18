@@ -60,7 +60,7 @@ void scan_arguments(int argc, char* argv[], struct interval_t* interval) {
     interval->to = to;
 }
 
-void read_array(long long* array, int* count_of_elements) {
+void find_out_length_array(long long* array, int* count_of_elements) {
     char c;
     int i = 0;
     scanf("%lli%c", &array[i], &c);
@@ -71,7 +71,7 @@ void read_array(long long* array, int* count_of_elements) {
     *count_of_elements = i + 1;
 }
 
-void distribute_numbers(long long* array_of_numbers, long long* Stdout, long long* reduced_numbers,
+void reduce_numbers(long long* array_of_numbers, long long* Stdout, long long* reduced_numbers,
                         int count_of_elements, long long* Stderr, struct interval_t interval, int* count_of_Stderr,
                         int* count_of_Stdout, int* reduced_count) {
     int count_Stdout = 0;
@@ -136,8 +136,8 @@ int main(int argc, char* argv[]) {
         return check_arguments_return_code;
     }
     scan_arguments(argc, argv, &interval);
-    read_array(array_of_numbers, &count_of_elements);
-    distribute_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr,
+    find_out_length_array(array_of_numbers, &count_of_elements);
+    reduce_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr,
                        interval, &count_of_Stderr, &count_of_Stdout, &count_of_reduced_elements);
     copy_array(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
     sort_array(reduced_numbers_sorted, count_of_reduced_elements);
