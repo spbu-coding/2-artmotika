@@ -60,7 +60,7 @@ void scan_arguments(int argc, char* argv[], struct interval_t* interval) {
     interval->to = to;
 }
 
-void find_out_length_array(long long* array, int* count_of_elements) {
+void read_array(long long array[], int* count_of_elements) {
     char c;
     int i = 0;
     scanf("%lli%c", &array[i], &c);
@@ -71,14 +71,14 @@ void find_out_length_array(long long* array, int* count_of_elements) {
     *count_of_elements = i + 1;
 }
 
-void reduce_numbers(long long* array_of_numbers, long long* Stdout, long long* reduced_numbers,
-                        int count_of_elements, long long* Stderr, struct interval_t interval, int* count_of_Stderr,
+void reduce_numbers(long long array_of_numbers[], long long Stdout[], long long reduced_numbers[],
+                        int count_of_elements, long long Stderr[], struct interval_t interval, int* count_of_Stderr,
                         int* count_of_Stdout, int* reduced_count) {
     int count_Stdout = 0;
     int count_Stderr = 0;
     int count_reduced = 0;
     for (int i = 0; i < count_of_elements; i++) {
-        if (array_of_numbers[i] <= interval.from) {
+        if (array_of_numbers[i] <= interval.from && interval.from != 0) {
             Stdout[count_Stdout] = array_of_numbers[i];
             count_Stdout++;
         }
@@ -86,7 +86,8 @@ void reduce_numbers(long long* array_of_numbers, long long* Stdout, long long* r
             Stderr[count_Stderr] = array_of_numbers[i];
             count_Stderr++;
         }
-        if (array_of_numbers[i] > interval.from && (array_of_numbers[i] < interval.to || interval.to == 0)) {
+        if ((array_of_numbers[i] > interval.from && (array_of_numbers[i] < interval.to || interval.to == 0)) ||
+        (array_of_numbers[i] < interval.to && interval.from == 0)){
             reduced_numbers[count_reduced] = array_of_numbers[i];
             count_reduced++;
         }
@@ -96,13 +97,13 @@ void reduce_numbers(long long* array_of_numbers, long long* Stdout, long long* r
     *reduced_count = count_reduced;
 }
 
-void copy_array(long long* copy_from, long long* copy_to, int count_of_elements) {
+void copy_array(long long copy_from[], long long copy_to[], int count_of_elements) {
     for (int i = 0; i < count_of_elements; i++) {
         copy_to[i] = copy_from[i];
     }
 }
 
-void numbers_output(long long* Stdout, int count_of_Stdout, long long* Stderr, int count_of_Stderr) {
+void display_std(long long Stdout[], int count_of_Stdout, long long Stderr[], int count_of_Stderr) {
     for (int i = 0; i < count_of_Stdout; i++) {
         fprintf(stdout, "%lli ", Stdout[i]);
     }
@@ -111,7 +112,7 @@ void numbers_output(long long* Stdout, int count_of_Stdout, long long* Stderr, i
     }
 }
 
-int compare_arrays(long long* array1, long long* array2, int count_of_reduced_elements) {
+int compare_arrays(long long array1[], long long array2[], int count_of_reduced_elements) {
     int difference_count = 0;
     for(int i = 0; i < count_of_reduced_elements; i++) {
         if(array1[i] != array2[i])
@@ -123,11 +124,8 @@ int compare_arrays(long long* array1, long long* array2, int count_of_reduced_el
 int main(int argc, char* argv[]) {
     struct interval_t interval = {0, 0};
 
-    long long array_of_numbers[MAX_COUNT_OF_NUMBERS];
-    long long Stdout[MAX_COUNT_OF_NUMBERS];
-    long long Stderr[MAX_COUNT_OF_NUMBERS];
-    long long reduced_numbers[MAX_COUNT_OF_NUMBERS];
-    long long reduced_numbers_sorted[MAX_COUNT_OF_NUMBERS];
+    long long array_of_numbers[MAX_COUNT_OF_NUMBERS], Stdout[MAX_COUNT_OF_NUMBERS], Stderr[MAX_COUNT_OF_NUMBERS],
+    reduced_numbers[MAX_COUNT_OF_NUMBERS], reduced_numbers_sorted[MAX_COUNT_OF_NUMBERS];
 
     int count_of_elements = 0, count_of_Stdout = 0, count_of_Stderr = 0, count_of_reduced_elements = 0;
 
@@ -136,13 +134,13 @@ int main(int argc, char* argv[]) {
         return check_arguments_return_code;
     }
     scan_arguments(argc, argv, &interval);
-    find_out_length_array(array_of_numbers, &count_of_elements);
+    read_array(array_of_numbers, &count_of_elements);
     reduce_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr,
                        interval, &count_of_Stderr, &count_of_Stdout, &count_of_reduced_elements);
     copy_array(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
     sort_array(reduced_numbers_sorted, count_of_reduced_elements);
 
     int count_of_changed_elements = compare_arrays(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
-    numbers_output(Stdout, count_of_Stdout, Stderr, count_of_Stderr);
+    display_std(Stdout, count_of_Stdout, Stderr, count_of_Stderr);
     return count_of_changed_elements;
 }
