@@ -39,18 +39,20 @@ int check_arguments(int argc, char* argv[]) {
     return 0;
 }
 
-void scan_arguments(int argc, char* argv[], struct interval_t* interval) {
+void scan_arguments(int argc, char* argv[], struct interval_t* interval, int* change_return_from, int* change_return_to) {
     long long from = 0, to = 0;
     for (int i = 0; i < argc; i++) {
         if (strncmp(argv[i], "--to=", 5) == 0 || strncmp(argv[i], "--from=", 7) == 0) {
             if (strncmp(argv[i], "--from=", 5) == 0) {
                 if (strtoll(argv[i] + 7, NULL, 10)) {
                     from = strtoll(argv[i] + 7, NULL, 10);
+                    *change_return_from = 1;
                 }
             }
             if (strncmp(argv[i], "--to=", 5) == 0) {
                 if (strtoll(argv[i] + 5, NULL, 10)) {
                     to = strtoll(argv[i] + 5, NULL, 10);
+                    *change_return_to = 1;
                 }
             }
 
@@ -73,21 +75,21 @@ void read_array(long long array[], int* count_of_elements) {
 
 void reduce_numbers(long long array_of_numbers[], long long Stdout[], long long reduced_numbers[],
                         int count_of_elements, long long Stderr[], struct interval_t interval, int* count_of_Stderr,
-                        int* count_of_Stdout, int* reduced_count) {
+                        int* count_of_Stdout, int* reduced_count, int change_return_from, int change_return_to) {
     int count_Stdout = 0;
     int count_Stderr = 0;
     int count_reduced = 0;
     for (int i = 0; i < count_of_elements; i++) {
-        if (array_of_numbers[i] <= interval.from && interval.from != 0) {
+        if (array_of_numbers[i] <= interval.from && change_return_from) {
             Stdout[count_Stdout] = array_of_numbers[i];
             count_Stdout++;
         }
-        if (array_of_numbers[i] >= interval.to && interval.to != 0) {
+        if (array_of_numbers[i] >= interval.to && change_return_to) {
             Stderr[count_Stderr] = array_of_numbers[i];
             count_Stderr++;
         }
-        if ((array_of_numbers[i] > interval.from && (array_of_numbers[i] < interval.to || interval.to == 0)) ||
-        (array_of_numbers[i] < interval.to && interval.from == 0)){
+        if ((array_of_numbers[i] > interval.from && change_return_from && (array_of_numbers[i] < interval.to || !change_return_to)) ||
+        (array_of_numbers[i] < interval.to && change_return_to && !change_return_from)){
             reduced_numbers[count_reduced] = array_of_numbers[i];
             count_reduced++;
         }
@@ -133,10 +135,12 @@ int main(int argc, char* argv[]) {
     if (check_arguments_return_code) {
         return check_arguments_return_code;
     }
-    scan_arguments(argc, argv, &interval);
+    int change_return_from = 0;
+    int change_return_to = 0;
+    scan_arguments(argc, argv, &interval, &change_return_from, &change_return_to);
     read_array(array_of_numbers, &count_of_elements);
-    reduce_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr,
-                       interval, &count_of_Stderr, &count_of_Stdout, &count_of_reduced_elements);
+    reduce_numbers(array_of_numbers, Stdout, reduced_numbers, count_of_elements, Stderr, interval, &count_of_Stderr,
+                   &count_of_Stdout, &count_of_reduced_elements, change_return_from, change_return_to);
     copy_array(reduced_numbers, reduced_numbers_sorted, count_of_reduced_elements);
     sort_array(reduced_numbers_sorted, count_of_reduced_elements);
 
