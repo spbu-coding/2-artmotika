@@ -85,7 +85,10 @@ int main(int argc, char* argv[]) {
     struct interval_t interval;
     int array_numbers[MAX_COUNT_OF_NUMBERS], array_numbers_copy[MAX_COUNT_OF_NUMBERS], length_array = 0;
     int count_from = 0, count_to = 0;
-    check_arguments(argc, argv, &interval, &count_from, &count_to);
+    int check_arguments_return_code = check_arguments(argc, argv, &interval, &count_from, &count_to);
+    if (check_arguments_return_code) {
+        return check_arguments_return_code;
+    }
     reduce_array(array_numbers, &length_array, array_numbers_copy, interval, count_from, count_to);
     sort_array(array_numbers, length_array);
     int changed_elements = compare_arrays(array_numbers, array_numbers_copy, length_array);
