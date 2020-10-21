@@ -39,6 +39,7 @@ int check_arguments(int argc, char* argv[], struct interval_t* interval, int* co
     } else if (*count_from == 0 && *count_to == 0) {
         return -4;
     }
+    return 0;
 }
 
 void reduce_array(int array_numbers[], int* length_array, int array_numbers_copy[], struct interval_t interval,
