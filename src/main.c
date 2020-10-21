@@ -26,14 +26,14 @@ int check_arguments(int argc, char* argv[], struct interval_t* interval, int* co
     for (int i = 0; i < argc; i++) {
         if (strncmp(argv[i], "--from=", strlen("--from=")) == 0) {
             interval->from_interaval = strtoll(argv[i] + strlen("--from="), NULL, 10);
-            *count_from = temp_from + 1;
-            temp_from = *count_from;
+            temp_from ++;
         } else if (strncmp(argv[i], "--to=", strlen("--to=")) == 0) {
             interval->to_interval = strtoll(argv[i] + strlen("--to="), NULL, 10);
-            *count_to = temp_to + 1;
-            temp_to = *count_to;
+            temp_to ++;
         }
     }
+    *count_from = temp_from;
+    *count_to = temp_to;
     if (*count_from > 1 || *count_to > 1) {
         return -3;
     } else if (*count_from == 0 && *count_to == 0) {
