@@ -15,7 +15,9 @@ struct interval_t{
     int to_interval;
 };
 
-int check_arguments(int argc, char* argv[], struct interval_t interval, int* count_from, int* count_to){
+int check_arguments(int argc, char* argv[], struct interval_t* interval, int* count_from, int* count_to){
+    int temp_from = *count_from;
+    int temp_to = *count_to;
     if (argc < 2) {
         return -1;
     } else if (argc > 3) {
@@ -23,11 +25,13 @@ int check_arguments(int argc, char* argv[], struct interval_t interval, int* cou
     }
     for (int i = 0; i < argc; i++) {
         if (strncmp(argv[i], "--from=", strlen("--from=")) == 0) {
-            interval.from_interaval = strtoll(argv[i] + strlen("--from="), NULL, 10);
-            *count_from ++;
+            interval->from_interaval = strtoll(argv[i] + strlen("--from="), NULL, 10);
+            *count_from = temp_from + 1;
+            temp_from = *count_from;
         } else if (strncmp(argv[i], "--to=", strlen("--to=")) == 0) {
-            interval.to_interval = strtoll(argv[i] + strlen("--to="), NULL, 10);
-            *count_to ++;
+            interval->to_interval = strtoll(argv[i] + strlen("--to="), NULL, 10);
+            *count_to = temp_to + 1;
+            temp_to = *count_to;
         }
     }
     if (*count_from > 1 || *count_to > 1) {
@@ -39,6 +43,7 @@ int check_arguments(int argc, char* argv[], struct interval_t interval, int* cou
 
 void reduce_array(int array_numbers[], int* length_array, int array_numbers_copy[], struct interval_t interval,
         int count_from, int count_to){
+    int temp_length_array = *length_array;
     for (int k = 0; k < MAX_COUNT_OF_NUMBERS; k++) {
         int number;
         char white_space;
@@ -57,9 +62,10 @@ void reduce_array(int array_numbers[], int* length_array, int array_numbers_copy
         if (!is_number_in_interval) {
             array_numbers[*length_array] = number;
             array_numbers_copy[*length_array] = number;
-            *length_array++;
+            *length_array = temp_length_array + 1;
+            temp_length_array = *length_array;
         }
-        if (white_space == '/n') {
+        if (white_space != ' ') {
             break;
         }
     }
@@ -78,7 +84,7 @@ int main(int argc, char* argv[]) {
     struct interval_t interval;
     int array_numbers[MAX_COUNT_OF_NUMBERS], array_numbers_copy[MAX_COUNT_OF_NUMBERS], length_array = 0;
     int count_from = 0, count_to = 0;
-    check_arguments(argc, argv, interval, &count_from, &count_to);
+    check_arguments(argc, argv, &interval, &count_from, &count_to);
     reduce_array(array_numbers, &length_array, array_numbers_copy, interval, count_from, count_to);
     sort_array(array_numbers, length_array);
     int changed_elements = compare_arrays(array_numbers, array_numbers_copy, length_array);
